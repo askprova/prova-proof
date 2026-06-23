@@ -1,0 +1,9 @@
+target/
+.anchor/
+node_modules/
+*.pem
+*.keypair
+.env*
+*keypair*.json
+*-keypair.json
+id.json

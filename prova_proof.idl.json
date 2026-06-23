@@ -1,0 +1,147 @@
+{
+  "address": "D4fwqE74azXzC6euWAmDoH6Up1gZEh725odUuZHcCqEB",
+  "metadata": {
+    "name": "prova_proof",
+    "version": "1.0.0",
+    "spec": "0.1.0",
+    "description": "Prova on-chain proof anchoring with TEE key registry + on-chain signature verification"
+  },
+  "instructions": [
+    {
+      "name": "register_tee_key",
+      "discriminator": [135, 139, 52, 108, 26, 47, 81, 108],
+      "accounts": [
+        {
+          "name": "tee_registry",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              { "kind": "const", "value": [116, 101, 101, 95, 107, 101, 121] },
+              { "kind": "arg", "path": "signing_address" }
+            ]
+          }
+        },
+        { "name": "authority", "writable": true, "signer": true },
+        { "name": "system_program", "address": "11111111111111111111111111111111" }
+      ],
+      "args": [
+        { "name": "signing_address", "type": { "array": ["u8", 20] } },
+        { "name": "attestation_hash", "type": { "array": ["u8", 32] } },
+        { "name": "provider", "type": "string" }
+      ]
+    },
+    {
+      "name": "set_tee_key_status",
+      "discriminator": [121, 81, 235, 52, 47, 243, 181, 75],
+      "accounts": [
+        {
+          "name": "tee_registry",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              { "kind": "const", "value": [116, 101, 101, 95, 107, 101, 121] },
+              { "kind": "arg", "path": "signing_address" }
+            ]
+          }
+        },
+        { "name": "authority", "signer": true }
+      ],
+      "args": [
+        { "name": "signing_address", "type": { "array": ["u8", 20] } },
+        { "name": "active", "type": "bool" },
+        { "name": "attestation_hash", "type": { "option": { "array": ["u8", 32] } } }
+      ]
+    },
+    {
+      "name": "record_proof",
+      "discriminator": [144, 172, 144, 35, 124, 170, 93, 80],
+      "accounts": [
+        { "name": "prover", "writable": true, "signer": true },
+        {
+          "name": "tee_registry",
+          "pda": {
+            "seeds": [
+              { "kind": "const", "value": [116, 101, 101, 95, 107, 101, 121] },
+              { "kind": "arg", "path": "signing_address" }
+            ]
+          }
+        }
+      ],
+      "args": [
+        { "name": "request_id", "type": "string" },
+        { "name": "model", "type": "string" },
+        { "name": "req_hash", "type": "string" },
+        { "name": "res_hash", "type": "string" },
+        { "name": "signed_message", "type": "string" },
+        { "name": "signing_address", "type": { "array": ["u8", 20] } },
+        { "name": "signature", "type": { "array": ["u8", 64] } },
+        { "name": "recovery_id", "type": "u8" },
+        { "name": "timestamp", "type": "i64" }
+      ]
+    }
+  ],
+  "accounts": [
+    { "name": "TeeKeyRegistry", "discriminator": [73, 231, 88, 51, 254, 246, 225, 162] }
+  ],
+  "events": [
+    { "name": "TeeKeyRegistered", "discriminator": [190, 167, 185, 132, 123, 103, 176, 12] },
+    { "name": "TeeKeyStatusChanged", "discriminator": [247, 128, 80, 46, 20, 216, 105, 41] },
+    { "name": "ProofRecorded", "discriminator": [55, 159, 128, 127, 158, 254, 93, 145] }
+  ],
+  "types": [
+    {
+      "name": "TeeKeyRegistry",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "signing_address", "type": { "array": ["u8", 20] } },
+          { "name": "attestation_hash", "type": { "array": ["u8", 32] } },
+          { "name": "provider", "type": "string" },
+          { "name": "registered_at", "type": "i64" },
+          { "name": "active", "type": "bool" }
+        ]
+      }
+    },
+    {
+      "name": "TeeKeyRegistered",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "signing_address", "type": { "array": ["u8", 20] } },
+          { "name": "attestation_hash", "type": { "array": ["u8", 32] } },
+          { "name": "provider", "type": "string" }
+        ]
+      }
+    },
+    {
+      "name": "TeeKeyStatusChanged",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "signing_address", "type": { "array": ["u8", 20] } },
+          { "name": "active", "type": "bool" },
+          { "name": "attestation_hash", "type": { "array": ["u8", 32] } }
+        ]
+      }
+    },
+    {
+      "name": "ProofRecorded",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "request_id", "type": "string" },
+          { "name": "model", "type": "string" },
+          { "name": "req_hash", "type": "string" },
+          { "name": "res_hash", "type": "string" },
+          { "name": "signing_address", "type": { "array": ["u8", 20] } },
+          { "name": "timestamp", "type": "i64" },
+          { "name": "verified_signature", "type": "bool" },
+          { "name": "verified_registry", "type": "bool" },
+          { "name": "attestation_hash", "type": { "array": ["u8", 32] } },
+          { "name": "provider", "type": "string" },
+          { "name": "prover", "type": "pubkey" }
+        ]
+      }
+    }
+  ]
+}
